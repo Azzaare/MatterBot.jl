@@ -3,6 +3,11 @@ uuid = "8543dcce-f222-4b94-9e07-c3b95c386b72"
 authors = ["azzaare <jf@baffier.fr> and contributors"]
 version = "1.0.0-DEV"
 
+[deps]
+ChatThemAll = "d20e7657-e361-40d3-9674-24e82b8f1914"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+
 [compat]
 julia = "1.9"
 
