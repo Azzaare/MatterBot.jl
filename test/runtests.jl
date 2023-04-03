@@ -1,6 +1,6 @@
-using MatterBot
+using MatterBots
 using Test
 
-@testset "MatterBot.jl" begin
+@testset "MatterBots.jl" begin
     # Write your tests here.
 end

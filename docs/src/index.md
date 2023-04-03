@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = MatterBot
+CurrentModule = MatterBots
 ```
 
-# MatterBot
+# MatterBots
 
-Documentation for [MatterBot](https://github.com/Azzaare/MatterBot.jl).
+Documentation for [MatterBots](https://github.com/Azzaare/MatterBots.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [MatterBot]
+Modules = [MatterBots]
 ```

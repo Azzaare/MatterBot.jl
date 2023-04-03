@@ -1,25 +1,25 @@
-using MatterBot
+using MatterBots
 using Documenter
 
-DocMeta.setdocmeta!(MatterBot, :DocTestSetup, :(using MatterBot); recursive=true)
+DocMeta.setdocmeta!(MatterBots, :DocTestSetup, :(using MatterBots); recursive=true)
 
 makedocs(;
-    modules=[MatterBot],
+    modules=[MatterBots],
     authors="azzaare <jf@baffier.fr> and contributors",
-    repo="https://github.com/Azzaare/MatterBot.jl/blob/{commit}{path}#{line}",
-    sitename="MatterBot.jl",
+    repo="https://github.com/Azzaare/MatterBots.jl/blob/{commit}{path}#{line}",
+    sitename="MatterBots.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://Azzaare.github.io/MatterBot.jl",
+        canonical="https://Azzaare.github.io/MatterBots.jl",
         edit_link="main",
-        assets=String[],
+        assets=String[]
     ),
     pages=[
         "Home" => "index.md",
-    ],
+    ]
 )
 
 deploydocs(;
-    repo="github.com/Azzaare/MatterBot.jl",
-    devbranch="main",
+    repo="github.com/Azzaare/MatterBots.jl",
+    devbranch="main"
 )

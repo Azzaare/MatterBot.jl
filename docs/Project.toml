@@ -1,3 +1,3 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-MatterBot = "8543dcce-f222-4b94-9e07-c3b95c386b72"
+MatterBots = "8543dcce-f222-4b94-9e07-c3b95c386b72"
