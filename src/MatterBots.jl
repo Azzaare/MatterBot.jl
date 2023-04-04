@@ -8,6 +8,10 @@ export listen_for_message
 
 export MatterBot, matter_bot
 
+include("api.jl")
+
+
+
 struct MatterBot <: ChatThemAll.AbstractBot
     name::String
     token::String
@@ -83,5 +87,7 @@ function listen_for_messages(bot::MatterBot, channel_id)
         sleep(5)  # Poll the API every 5 seconds
     end
 end
+
+include("users.jl")
 
 end
