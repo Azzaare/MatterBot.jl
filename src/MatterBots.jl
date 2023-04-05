@@ -3,91 +3,111 @@ module MatterBots
 using ChatThemAll
 using HTTP
 using JSON
+using MatterMost
+using OpenAPI
+using OpenAPI.Clients
 
-export listen_for_message
+import OpenAPI.Clients: Client, set_header
 
-export MatterBot, matter_bot
+export listen_for_messages
 
-include("api.jl")
+export MatterBot
 
+include("utils.jl")
+include("bot.jl")
 
+# function handle_message(message)
+#     if startswith(message, "/")
+#         # Add your custom message handling logic here
+#         println("Received command: ", message)
+#     end
+# end
 
-struct MatterBot <: ChatThemAll.AbstractBot
-    name::String
-    token::String
-    url::String
-    channels::Dict{String,String}
-    api_version::String
-end
-
-function matter_bot(name, token, url, channels, api_version="v4")
-    return MatterBot(name, token, url, channels, api_version)
-end
-
-const CHANNELS = Dict([
-    "integrations" => "dchg59qoi7nazebnms3q6j3azh",
-])
-
-function api_request(bot, method, endpoint, data=nothing)
-    headers = [
-        "Authorization" => "Bearer $(token(bot))",
-        "Content-Type" => "application/json"
-    ]
-    request_endpoint = "$(ChatThemAll.api_endpoint(bot))/$(endpoint)"
-    if data !== nothing
-        response = HTTP.request(method, request_endpoint, headers, JSON.json(data))
-    else
-        response = HTTP.request(method, request_endpoint, headers)
+function process_message(message::String)
+    if startswith(message, "/")
+        # Parse and execute the command
+        println("Received command: ", message[2:end])
     end
-    return JSON.parse(String(response.body))
 end
 
-
-function send_message(
-    bot::MatterBot,
-    channel_id,
-    message;
-    root_id="",
-    file_ids=[],
-    props=Dict()
+function listen_for_messages(
+    posts_api::MatterMost.PostsApi,
+    channels_api::MatterMost.ChannelsApi,
+    user_id::String,
+    channel_id::String
 )
-    data = Dict(
-        "channel_id" => channel_id,
-        "message" => message,
-        "root_id" => root_id,
-        "file_ids" => file_ids,
-        "props" => props,
-    )
-    return api_request(bot, "POST", "posts", data)
-end
-
-function listen_for_messages(bot::MatterBot, channel_id)
-    last_post_id = ""
     while true
-        response = api_request(bot, "GET", "channels/$channel_id/posts")
-        posts = response["posts"]
+        # @info "debug: incrementing loop" channel_id user_id
+        posts_list, _ = get_posts_around_last_unread(posts_api, user_id, channel_id; limit_before=0)
+        # @info posts_list fieldnames(typeof(posts_list))
+        !isnothing(posts_list) && for (_, post) in posts_list.posts
+            # @info post fieldnames(typeof(post))
+            process_message(post.message)
 
-        for (post_id, post) in posts
-            if post_id != last_post_id
-                last_post_id = post_id
-                user_id = post["user_id"]
-                message = post["message"]
-
-                if user_id != "matterbot_jl"  # Replace with your bot's user ID to avoid responding to itself
-                    println("Received message: $message")
-
-                    # Add your message handling logic here
-                    if lowercase(message) == "hello"
-                        send_message(bot, post["channel_id"], "Hello! How can I help you? (sorry for the spam, I'm pretty dumb right now))")
-                    end
-                end
-            end
+            # Mark the channel as read
+            channel_view_request = MatterMost.ViewChannelRequest(; channel_id)
+            view_channel(channels_api, user_id, channel_view_request)
         end
 
-        sleep(5)  # Poll the API every 5 seconds
+        break
+        sleep(5) # Wait for 5 seconds before checking for new messages
     end
 end
 
-include("users.jl")
+# function listen_for_messages(api::MatterMost.PostsApi, channel_id::String)
+#     last_post_id = ""
+
+#     while true
+#         # Use the MatterMost.jl generated function to fetch the channel's posts
+#         posts, _ = get_posts_for_channel(api, channel_id, page=0, per_page=10, since=0)
+
+#         for (id, post) in posts.posts
+#             @info "debug" id post
+#             if post.id != last_post_id && post.message != ""
+#                 handle_message(post.message)
+#                 last_post_id = post.id
+#             end
+#         end
+
+#         sleep(5) # Polling interval
+#     end
+# end
+
+# function listen_for_messages(bot::MatterBot, channel_id::String)
+#     headers = Dict([
+#         "Authorization" => "Bearer $(token(bot))",
+#         "Content-Type" => "application/json"
+#     ])
+#     # Initialize MatterMost API context
+#     client_context = Client(api_endpoint(bot); headers)
+#     api = MatterMost.PostsApi(client_context)
+
+#     # Call listen_for_messages with the appropriate channel_id
+#     listen_for_messages(api, channel_id)
+# end
+
+function listen_for_messages(bot::MatterBot)
+    # Initialize Mattermost API client
+    headers = Dict(
+        "Authorization" => "Bearer $(token(bot))",
+        "Content-Type" => "application/json"
+    )
+    client = Client(api_endpoint(bot); headers)
+    channels_api = MatterMost.ChannelsApi(client)
+    posts_api = MatterMost.PostsApi(client)
+
+    # Get the bot user's ID
+    bot_user_id = bot_id(bot)
+
+    # Get the list of accessible channels
+    # channels, _ = get_channels_for_user(channels_api, "me")
+    channels, _ = get_all_channels(channels_api)
+
+    # Start listening to each channel
+    for channel in channels
+        # @info "debug: listening to channel" channel
+        listen_for_messages(posts_api, channels_api, bot_user_id, channel.id)
+    end
+end
 
 end

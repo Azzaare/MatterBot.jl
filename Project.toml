@@ -1,12 +1,14 @@
-authors = ["azzaare <jf@baffier.fr> and contributors"]
 name = "MatterBots"
 uuid = "8543dcce-f222-4b94-9e07-c3b95c386b72"
+authors = ["azzaare <jf@baffier.fr> and contributors"]
 version = "0.0.1"
 
 [deps]
 ChatThemAll = "d20e7657-e361-40d3-9674-24e82b8f1914"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+MatterMost = "cde0203f-520b-4e04-9aee-42e57d0f514e"
+OpenAPI = "d5e62ea6-ddf3-4d43-8e4c-ad5e6c8bfd7d"
 
 [compat]
 julia = "1.9"
